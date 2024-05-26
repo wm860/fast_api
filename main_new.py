@@ -1,9 +1,13 @@
 # Import necessary modules and classes
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Form, Request
 from sqlalchemy import create_engine, Column, Integer, String
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
+
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 # FastAPI app instance
 app = FastAPI()
@@ -42,6 +46,9 @@ class ItemResponse(BaseModel):
 	id: int
 	name: str
 	description: str
+	
+templates = Jinja2Templates(directory="templates")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # API endpoint to create an item
 @app.post("/items/", response_model=ItemResponse)
@@ -59,6 +66,18 @@ async def read_item(item_id: int, db: Session = Depends(get_db)):
 	if db_item is None:
 		raise HTTPException(status_code=404, detail="Item not found")
 	return db_item
+
+@app.get("/", response_class=HTMLResponse)
+async def read_form(request: Request):
+    return templates.TemplateResponse("form.html", {"request": request})
+
+@app.post("/submit/", response_class=HTMLResponse)
+async def handle_form(request: Request, name: str = Form(...), description: str = Form(...), db: Session = Depends(get_db)):
+    db_item = Item(name=name, description=description)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return templates.TemplateResponse("result.html", {"request": request, "item": db_item})
 
 if __name__ == "__main__":
 	import uvicorn
