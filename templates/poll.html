@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{% block title %} Fill the poll {% endblock %}</h2>
+<form action="/submit/" method="post">
+    <label for="username">What is your username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="age"> What is your age:</label>
+    <input type="text" id="age" name="age" required>
+    <br>
+    <label for="city"> What is your city:</label>
+    <input type="text" id="city" name="city" required>
+    <br>
+    <label for="country"> What is your country:</label>
+    <input type="text" id="country" name="country" required>
+    <br>
+    <button type="submit">Submit</button>
+</form>
+<div class=''>
+    <p>Enter a title and a message to create a new message.</p>
+</div>
+
+{% endblock %}

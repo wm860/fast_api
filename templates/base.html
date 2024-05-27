@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %} - FlaskApp</title>
+    <style>
+        .message {
+            padding: 10px;
+            margin: 5px;
+            background-color: #f3f3f3
+        }
+
+        nav a {
+            color: #41d641;
+            font-size: 3em;
+            margin-left: 50px;
+            text-decoration: none;
+        }
+
+        .poll-link {
+            color: #d64141;
+        }
+
+        .alert {
+            padding: 20px;
+            margin: 5px;
+            color: #970020;
+            background-color: #feffd5;
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="{{ url_for('index') }}"> Home </a>
+        <a href="{{ url_for('poll') }}" class="poll-link"> Poll </a>
+        <a href="{{ url_for('login') }}"> Log in </a>
+        <a href="{{ url_for('register') }}"> Register </a>
+    </nav>
+    <hr>
+    {% block content %}{% endblock %}
+</body>
+
+</html>

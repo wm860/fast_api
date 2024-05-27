@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{% block title %} Welcome to my poll app written in flask {% endblock %}</h2>
+
+{% block list %}
+<h3>
+    <ul>
+        <li>First please login</li>
+        <li>Then please fill the poll</li>
+        <li>Then results will be saved in local db</li>
+    </ul>
+</h3>
+{% endblock %}
+
+<!-- {% for message in messages %}
+<div class='message'>
+    <h3>{{ message['title'] }}</h3>
+    <p>{{ message['content'] }}</p>
+</div>
+{% endfor %} -->
+{% endblock %}

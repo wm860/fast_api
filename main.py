@@ -22,11 +22,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = sqlalchemy.orm.declarative_base()
 
 # Database model
-class Item(Base):
-	__tablename__ = "items"
+class Poll(Base):
+	__tablename__ = "poll"
 	id = Column(Integer, primary_key=True, index=True)
-	name = Column(String, index=True)
-	description = Column(String)
+	username = Column(String, index=True)
+	age = Column(Integer)
+	city = Column(String)
+	country = Column(String)
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -40,47 +42,66 @@ def get_db():
 		db.close()
 
 # Pydantic model for request data 
-class ItemCreate(BaseModel):
-    name: str
-    description: str
-	
+class PollCreate(BaseModel):
+	username: str
+	age: int
+	city: str
+	country: str
+		
 # Pydantic model for response data
-class ItemResponse(BaseModel):
+class PollResponse(BaseModel):
 	id: int
-	name: str
-	description: str
-	
+	username: str
+	age: int
+	city: str
+	country: str
+
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # API endpoint to create an item
-@app.post("/items/", response_model=ItemResponse)
-async def create_item(item: ItemCreate, db: Session = Depends(get_db)):
-	db_item = Item(**item.model_dump())
-	db.add(db_item)
+@app.post("/poll/", response_model=PollResponse)
+async def create_record(record: PollCreate, db: Session = Depends(get_db)):
+	db_record = Poll(**record.model_dump())
+	db.add(db_record)
 	db.commit()
-	db.refresh(db_item)
-	return db_item
+	db.refresh(db_record)
+	return db_record
 
 # API endpoint to read an item by ID
-@app.get("/items/{item_id}", response_model=ItemResponse)
-async def read_item(item_id: int, db: Session = Depends(get_db)):
-	db_item = db.query(Item).filter(Item.id == item_id).first()
-	if db_item is None:
+@app.get("/poll/{record_id}", response_model=PollResponse)
+async def read_record(record_id: int, db: Session = Depends(get_db)):
+	db_record = db.query(Poll).filter(Poll.id == record_id).first()
+	if db_record is None:
 		raise HTTPException(status_code=404, detail="Item not found")
-	return db_item
+	return db_record
 
-@app.get("/", response_class=HTMLResponse)
+
+
+@app.get("/", response_class=HTMLResponse, name="index")
+async def read_root(request: Request):
+	return templates.TemplateResponse("index.html",{"request": request})
+
+
+@app.get("/poll", response_class=HTMLResponse, name="poll")
 async def read_form(request: Request):
-    return templates.TemplateResponse("form.html", {"request": request})
+    return templates.TemplateResponse("poll.html", {"request": request})
 
 @app.post("/submit/", response_class=HTMLResponse)
-async def handle_form(request: Request, name: str = Form(...), description: str = Form(...), db: Session = Depends(get_db)):
-    db_item = Item(name=name, description=description)
-    db.add(db_item)
+async def handle_form(request: Request, username: str = Form(...), age: int = Form(...), city: str = Form(...), country: str = Form(...), db: Session = Depends(get_db)):
+    db_record = Poll(username=username, age=age, city=city, country=country)
+    db.add(db_record)
     db.commit()
-    db.refresh(db_item)
-    return templates.TemplateResponse("result.html", {"request": request, "item": db_item})
+    db.refresh(db_record)
+    return templates.TemplateResponse("results.html", {"request": request, "item": db_record})
+
+@app.get("/login", response_class=HTMLResponse, name="login")
+async def read_login(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.get("/register", response_class=HTMLResponse, name="register")
+async def read_register(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
 
 if __name__ == "__main__":
 	import uvicorn
