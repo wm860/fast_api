@@ -6,7 +6,7 @@ services:
       - "8000:8000"
   flask-app:
     build:
-      context: ./../service_python
+      context: ./../flask_service
     command: ["python", "run.py"]
     ports:
       - "8001:8001"
