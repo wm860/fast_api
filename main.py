@@ -121,6 +121,10 @@ async def read_register(request: Request):
 async def verify_loaderio():
     return "static/loaderio-12e71f86ba0e1bc3612073cdb4846861.txt"
 
+@app.get("/loader", response_class=HTMLResponse)
+async def verify_loaderio():
+    return "nie dziala"
+
 if __name__ == "__main__":
     import uvicorn
 
