@@ -10,14 +10,14 @@ from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-# Database setup
+# Database setup --------------------------------------------------------------------------------------------------------------
 DATABASE_URL = "sqlite:///./fastapi_poll.db"
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = sqlalchemy.orm.declarative_base()
 
 
-# Database model
+# Database model 
 class Poll(Base):
     __tablename__ = "poll"
     id = Column(Integer, primary_key=True, index=True)
@@ -40,7 +40,7 @@ def get_db():
         db.close()
 
 
-# Pydantic model for request data
+# Pydantic model for request data -------------------------------------------------------------------------------------------
 class PollCreate(BaseModel):
     username: str
     age: int
@@ -61,7 +61,7 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-# API endpoint to create an item
+# API endpoints --------------------------------------------------------------------------------------------------------------
 @app.post("/poll/", response_model=PollResponse)
 async def create_record(record: PollCreate, db: Session = Depends(get_db)):
     db_record = Poll(**record.model_dump())
@@ -71,7 +71,6 @@ async def create_record(record: PollCreate, db: Session = Depends(get_db)):
     return db_record
 
 
-# API endpoint to read an item by ID
 @app.get("/poll/{record_id}", response_model=PollResponse)
 async def read_record(record_id: int, db: Session = Depends(get_db)):
     db_record = db.query(Poll).filter(Poll.id == record_id).first()
@@ -120,10 +119,6 @@ async def read_register(request: Request):
 @app.get("/loaderio-12e71f86ba0e1bc3612073cdb4846861.txt", response_class=FileResponse)
 async def verify_loaderio():
     return "static/loaderio-12e71f86ba0e1bc3612073cdb4846861.txt"
-
-@app.get("/loader", response_class=HTMLResponse)
-async def verify_loaderio():
-    return "nie dziala"
 
 if __name__ == "__main__":
     import uvicorn
