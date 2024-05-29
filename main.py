@@ -1,16 +1,13 @@
-# Import necessary modules and classes
 from fastapi import FastAPI, Depends, HTTPException, Form, Request
 from sqlalchemy import create_engine, Column, Integer, String
 import sqlalchemy
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel
 
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-
-# FastAPI app instance
 app = FastAPI()
 
 # Database setup
@@ -120,6 +117,9 @@ async def read_login(request: Request):
 async def read_register(request: Request):
     return templates.TemplateResponse("register.html", {"request": request})
 
+@app.get("/loaderio-12e71f86ba0e1bc3612073cdb4846861.txt", response_class=FileResponse)
+async def verify_loaderio():
+    return "static/loaderio-12e71f86ba0e1bc3612073cdb4846861.txt"
 
 if __name__ == "__main__":
     import uvicorn
