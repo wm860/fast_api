@@ -10,6 +10,43 @@ services:
     command: ["python", "run.py"]
     ports:
       - "8001:8001"
+
+  web:
+    build: 
+      context: ./../a_flask_service
+    image: web
+    container_name: web-app
+    ports:
+      - "8002:5000"
+    command: python run.py run -h 0.0.0.0
+    volumes:
+      - ../a_flask_service:/usr/src/app
+    environment:
+      - FLASK_DEBUG=1
+      - APP_SETTINGS=server.config.DevelopmentConfig
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - redis
+
+  worker:
+    build: 
+      context: ./../a_flask_service
+    command: celery --app server.tasks.celery worker --loglevel=info
+    volumes:
+      - ../a_flask_service:/usr/src/app
+    environment:
+      - FLASK_DEBUG=1
+      - APP_SETTINGS=server.config.DevelopmentConfig
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+
+  redis:
+    image: redis:6-alpine
+
   nginx:
     image: nginx:latest
     ports:
